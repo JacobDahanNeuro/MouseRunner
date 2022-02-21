@@ -41,3 +41,5 @@ pyinstaller.exe --onefile --noconsole --icon=/path/to/MouseRunner/assets/icon.ic
 > On Windows operating systems, change directories using the command `cd /d /path/to/MouseRunner/scripts/behavior`
 > 
 > Note that this command will take some time.
+
+After the operation is completed, move to the newly created directory `dist`, create a shortcut for the executable in the folder, and move the shortcut to the Desktop. 
