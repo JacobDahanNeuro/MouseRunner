@@ -1,5 +1,6 @@
 absl-py==1.0.0
 alabaster @ file:///home/ktietz/src/ci/alabaster_1611921544520/work
+altgraph @ file:///home/conda/feedstock_root/build_artifacts/altgraph_1632761154050/work
 anaconda-client @ file:///C:/ci/anaconda-client_1635342752200/work
 anaconda-project @ file:///tmp/build/80754af9/anaconda-project_1637161053845/work
 anyio @ file:///C:/ci/anyio_1644463701441/work/dist
@@ -30,7 +31,7 @@ boto==2.49.0
 Bottleneck==1.3.2
 brotlipy==0.7.0
 cachetools==5.0.0
-certifi==2020.6.20
+certifi==2021.10.8
 cffi @ file:///C:/ci_310/cffi_1642682485096/work
 chardet @ file:///C:/ci/chardet_1607690654534/work
 charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
@@ -69,6 +70,7 @@ Flask @ file:///home/ktietz/src/ci/flask_1611932660458/work
 flatbuffers==2.0
 fonttools==4.25.0
 fsspec @ file:///opt/conda/conda-bld/fsspec_1642510437511/work
+future @ file:///D:/bld/future_1635819659513/work
 gast==0.5.3
 gevent @ file:///C:/ci/gevent_1628273793586/work
 glob2 @ file:///home/linux1/recipes/ci/glob2_1610991677669/work
@@ -122,6 +124,7 @@ libclang==13.0.0
 llvmlite==0.37.0
 locket==0.2.1
 lxml @ file:///C:/ci/lxml_1640178400919/work
+macholib @ file:///home/conda/feedstock_root/build_artifacts/macholib_1595268426755/work
 Markdown==3.3.6
 MarkupSafe==1.1.1
 matplotlib @ file:///C:/ci/matplotlib-suite_1638289827560/work
@@ -170,6 +173,7 @@ path @ file:///opt/conda/conda-bld/path_1641578212155/work
 pathlib2 @ file:///C:/ci/pathlib2_1625585790401/work
 pathspec==0.7.0
 patsy==0.5.2
+pefile @ file:///home/conda/feedstock_root/build_artifacts/pefile_1630688703091/work
 pep8==1.7.1
 pexpect @ file:///tmp/build/80754af9/pexpect_1605563209008/work
 pickleshare @ file:///tmp/build/80754af9/pickleshare_1606932040724/work
@@ -190,12 +194,15 @@ pyasn1-modules==0.2.8
 pycodestyle @ file:///tmp/build/80754af9/pycodestyle_1615748559966/work
 pycosat==0.6.3
 pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
+pycryptodome @ file:///D:/bld/pycryptodome_1644028956458/work
 pycurl==7.44.1
 pydocstyle @ file:///tmp/build/80754af9/pydocstyle_1621600989141/work
 pyerfa @ file:///C:/ci/pyerfa_1621561004681/work
 pyflakes @ file:///tmp/build/80754af9/pyflakes_1617200973297/work
 pygame==2.1.2
 Pygments @ file:///opt/conda/conda-bld/pygments_1644249106324/work
+pyinstaller==4.9
+pyinstaller-hooks-contrib==2022.2
 pylint @ file:///C:/ci/pylint_1627536881874/work
 pyls-spyder==0.4.0
 PyNaCl @ file:///C:/ci/pynacl_1595000047588/work
