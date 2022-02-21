@@ -35,7 +35,7 @@ To generate a desktop executable for simple click-and-run functionality of Mouse
 
 ```
 cd /path/to/MouseRunner/scripts/behavior
-pyinstaller.exe --onefile --noconsole --icon=/path/to/MouseRunner/assets/icon.ico /path/to/MouseRunner/scripts/behavior/MouseRunner.py
+pyinstaller.exe --onefile --console --icon=/path/to/MouseRunner/assets/icon.ico /path/to/MouseRunner/scripts/behavior/MouseRunner.py
 ```
 
 > On Windows operating systems, change directories using the command `cd /d /path/to/MouseRunner/scripts/behavior`
