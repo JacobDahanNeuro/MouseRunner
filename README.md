@@ -28,3 +28,16 @@ All required basic Python modules can be found within the [requirements document
 The Spinnaker software module PySpin must be installed manually according to the specifications of your computer's OS from [Spinnaker's own website](https://www.flir.eu/products/spinnaker-sdk/).
 
 > Note that additional installation instructions can be found within the software's README file, included in the software download.
+
+### Building A Desktop Executable (optional)
+
+To generate a desktop executable for simple click-and-run functionality of MouseRunner, enter the following command (adjusted for your save location):
+
+```
+cd /path/to/MouseRunner/scripts/behavior
+pyinstaller.exe --onefile --noconsole --icon=/path/to/MouseRunner/assets/icon.ico /path/to/MouseRunner/scripts/behavior/MouseRunner.py
+```
+
+> On Windows operating systems, change directories using the command `cd /d /path/to/MouseRunner/scripts/behavior`
+> 
+> Note that this command will take some time.
