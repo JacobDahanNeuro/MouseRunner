@@ -5,6 +5,7 @@ import os
 import gc
 import sys
 import cv2
+import time
 import queue
 import PySpin
 import skvideo
@@ -295,6 +296,7 @@ class SpinnakerCamera:
         global save_completed
         self.camera.EndAcquisition()
         save_completed.wait()
+        time.sleep(5)
         self.display.terminate()
         self.writer.close()
         self.camera.DeInit()

@@ -193,7 +193,7 @@ class App:
 
     def init_arduino(self,laserPin=4,shockerPin=7,ledPin=8):
         if not self.arduino_isrun:
-            self.connection = SerialManager(device = "COM3")
+            self.connection = SerialManager(device = "COM4")
             self.a          = ArduinoApi(connection=self.connection)
             pygame.mixer.quit()                                                            # ensure that pygame.mixer is not running to enable setting of sound params
             pygame.mixer.pre_init(44100, -16, 1, 2048)                                     # frequency, bit depth, channels, cache
@@ -371,6 +371,7 @@ class App:
                                                                 mouse.params_path))
             time.sleep(5)
             shutil.copytree(self.tmp_path, mouse.params_path, dirs_exist_ok=True)
+            time.sleep(5)
         shutil.rmtree(self.tmp_path)
 
     def save_mouse_object(self,mouse_values,old_mouse=None):
@@ -671,10 +672,10 @@ class App:
                 except:
                     self.open_error_window('Must select tones prior to running behavior.')
                     continue
-                try:
-                    self.run_mouse()
-                except:
-                    self.open_error_window('No mouse selected for running')
+                # try:
+                self.run_mouse()
+                # except:
+                    # self.open_error_window('No mouse selected for running')
             elif self.event == 'STORAGEPUSH':
                 self.storage_path = self.values['STORAGEPATH']
                 self.retired_path = os.path.join(self.homepath,'retired')
