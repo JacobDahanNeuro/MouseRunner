@@ -127,8 +127,8 @@ class DefaultParams:
         """
         return {'session_type'        : 'Conditioning',
                 'stim_num'            : 5,
-                'baseline'            : 180,
-                'avg_isi'             : 60,
+                'baseline'            : 300,
+                'avg_isi'             : 90,
                 'std_isi'             : 15,
                 'cs_duration'         : 30,
                 'cs_ids'              : (0,1),
@@ -148,8 +148,8 @@ class DefaultParams:
         """
         return {'session_type'        : 'OFC',
                 'stim_num'            : 5,
-                'baseline'            : 180,
-                'avg_isi'             : 60,
+                'baseline'            : 300,
+                'avg_isi'             : 90,
                 'std_isi'             : 15,
                 'cs_duration'         : 30,
                 'cs_ids'              : (0,2),
