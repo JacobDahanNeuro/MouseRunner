@@ -296,8 +296,8 @@ class SpinnakerCamera:
         global save_completed
         self.camera.EndAcquisition()
         save_completed.wait()
-        time.sleep(5)
         self.display.terminate()
+        time.sleep(5)
         self.writer.close()
         self.camera.DeInit()
         del self.camera
