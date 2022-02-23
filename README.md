@@ -62,9 +62,9 @@ pyinstaller.exe --onefile --console --icon=/path/to/MouseRunner/assets/icon.ico 
 
 After the operation is completed, move to the newly created directory `dist`, create a shortcut for the executable in the folder, and move the shortcut to the Desktop. 
 
-## TO-DO
+## To-Do
 
-- [] Incorporate [DeepLabCut Live](https://github.com/DeepLabCut/DeepLabCut-live)
-- [] Document MouseRunner
-- [] Develop `find_arduino` function for automatic handling of COM port changes
-- [] Add instructions for Fresco Drive bandwidth modifications
+- [ ] Incorporate [DeepLabCut Live](https://github.com/DeepLabCut/DeepLabCut-live)
+- [ ] Document MouseRunner
+- [ ] Develop `find_arduino` function for automatic handling of COM port changes
+- [ ] Add instructions for Fresco Drive bandwidth modifications
