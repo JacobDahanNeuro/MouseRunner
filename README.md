@@ -65,6 +65,6 @@ After the operation is completed, move to the newly created directory `dist`, cr
 ## To-Do
 
 - [ ] Incorporate [DeepLabCut Live](https://github.com/DeepLabCut/DeepLabCut-live)
-- [ ] Document MouseRunner
-- [ ] Develop `find_arduino` function for automatic handling of COM port changes
-- [ ] Add instructions for Fresco Drive bandwidth modifications
+- [ ] Document [MouseRunner](https://github.com/JacobDahanNeuro/MouseRunner/blob/main/scripts/behavior/MouseRunner.py)
+- [ ] Develop `find_arduino` function for automatic handling of [COM port changes](https://stackoverflow.com/questions/24214643/python-to-automatically-select-serial-ports-for-arduino)
+- [ ] Add instructions for [Fresco Drive](https://www.flir.com/support-center/iis/machine-vision/knowledge-base/usb-3.1-cameras-with-fresco-driver-limited-to-6-mb) [bandwidth modifications](http://www.uninstallhelps.com/how-to-uninstall-fresco-logic-usb3-0-host-controller.html) 
