@@ -29,6 +29,24 @@ The Spinnaker software module PySpin must be installed manually according to the
 
 > Note that additional installation instructions can be found within the software's README file, included in the software download.
 
+## Usage
+
+### Installing FFMPEG
+Video writing to mp4 requires manual FFMPEG installation. To install FFMPEG on Windows, simply follow the instructions [here](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/).
+
+> Note that FFMPEG downloads are zipped by default and will require accessory programs such as [7zip](https://www.7-zip.org/download.html) for installation.
+
+To test that the FFMPEG installation was successful, open the [Windows powershell](https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.2) and enter `ffmpeg`.
+
+> Note that Windows operating systems do not include mp4 codecs by default. These may or may not require installation via [third parties](http://codecguide.com/download_k-lite_codec_pack_basic.htm).
+
+### Adjusting In-Built (Hard-Coded) Parameters
+> Note that these adjustments _must_ be made prior to generating a desktop executable.
+
+Some parameters, such as the [COM port](https://en.wikipedia.org/wiki/COM_(hardware_interface)) for Arduino communication may not align with in-built defaults. These can be easily adjusted within the Python scripts, but are not available as input parameters to simplify GUI interactions. Of note, please keep careful mind of the following parameters:
+- `time.sleep(n)` : Prior to transferring files, a delay of `n` seconds is provided to allow for completion of image compilation. This is handled in the script `MouseRunner`. With high-throughput data ports and a fast computer, `n` can be set to zero, such that there is no delay (default). Slower computers or USB hubs will require longer delays, particularly for longer behavioral sessions with buffer build-up.
+- `COMX` : During Arduino initiation, a COM port must be assigned for communication. This is handled in the script `MouseRunner`. The current port in use can be determined via the [Arduino IDE](https://support.arduino.cc/hc/en-us/articles/4406856349970-Find-the-port-your-board-is-connected-to) or, on Windows, via the [Device Manager](https://www.mathworks.com/help/supportpkg/arduinoio/ug/find-arduino-port-on-windows-mac-and-linux.html).
+
 ### Building A Desktop Executable (optional)
 
 To generate a desktop executable for simple click-and-run functionality of MouseRunner, enter the following command (adjusted for your save location):
