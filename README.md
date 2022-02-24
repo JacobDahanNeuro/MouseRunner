@@ -21,6 +21,7 @@ conda activate MouseRunner                  # Activate the new environment
 > For interactive capabilities, enter `conda create -n "MouseRunner" python=3.8 ipython` instead.
 
 ### Installing Packages
+
 All required basic Python modules can be found within the [requirements document](requirements.txt) and should be installed within the virual environment by entering the following command in the Prompt: 
 
 ```pip install -r /path/to/requirements.txt```.
@@ -32,6 +33,7 @@ The Spinnaker software module PySpin must be installed manually according to the
 ## Usage
 
 ### Installing FFMPEG
+
 Video writing to mp4 requires manual FFMPEG installation. To install FFMPEG on Windows, simply follow the instructions [here](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/).
 
 > Note that FFMPEG downloads are zipped by default and will require accessory programs such as [7zip](https://www.7-zip.org/download.html) for installation.
@@ -40,12 +42,14 @@ To test that the FFMPEG installation was successful, open the [Windows powershel
 
 > Note that Windows operating systems do not include mp4 codecs by default. These may or may not require installation via [third parties](http://codecguide.com/download_k-lite_codec_pack_basic.htm).
 
-### Adjusting In-Built (Hard-Coded) Parameters
-> Note that these adjustments _must_ be made prior to generating a desktop executable.
+### Doric Neuroscience Studio
 
-Some parameters, such as the [COM port](https://en.wikipedia.org/wiki/COM_(hardware_interface)) for Arduino communication may not align with in-built defaults. These can be easily adjusted within the Python scripts, but are not available as input parameters to simplify GUI interactions. Of note, please keep careful mind of the following parameters:
-- `time.sleep(n)` : Prior to transferring files, a delay of `n` seconds is provided to allow for completion of image compilation. This is handled in the script `MouseRunner`. With high-throughput data ports and a fast computer, `n` can be set to zero, such that there is no delay (default). Slower computers or USB hubs will require longer delays, particularly for longer behavioral sessions with buffer build-up.
-- `COMX` : During Arduino initiation, a COM port must be assigned for communication. This is handled in the script `MouseRunner`. The current port in use can be determined via the [Arduino IDE](https://support.arduino.cc/hc/en-us/articles/4406856349970-Find-the-port-your-board-is-connected-to) or, on Windows, via the [Device Manager](https://www.mathworks.com/help/supportpkg/arduinoio/ug/find-arduino-port-on-windows-mac-and-linux.html).
+Arduino-based laser triggers are intended for use with [Doric Neuroscience Studio](https://neuro.doriclenses.com/products/doric-neuroscience-studio), which can command numerous laser wave patterns with simple `On` and `Off` Arduino signals. Installation the Studio is not required, though the code must be adapted to include a wave generator for complex laser commands.
+> Note that any code modifications must be made _prior_ to building the Desktop Executable.
+>
+> Doric Neuroscience Studio refers to rising and falling edges as `gates` rather than `triggers`, and the configuration must be set up accordingly. See the built-in `haloTrigger` Doric configuration file for more information.
+
+After installing the Studio from the above link, simply open the application and set up a custom configuration, `MouseRunner` will handle the rest.
 
 ### Building A Desktop Executable (optional)
 
@@ -66,6 +70,6 @@ After the operation is completed, move to the newly created directory `dist`, cr
 
 - [ ] Incorporate [DeepLabCut Live](https://github.com/DeepLabCut/DeepLabCut-live)
 - [ ] Document [MouseRunner](https://github.com/JacobDahanNeuro/MouseRunner/blob/main/scripts/behavior/MouseRunner.py)
-- [ ] Develop `find_arduino` function for automatic handling of [COM port changes](https://stackoverflow.com/questions/24214643/python-to-automatically-select-serial-ports-for-arduino)
+- [x] Develop `find_arduino` function for automatic handling of [COM port changes](https://stackoverflow.com/questions/24214643/python-to-automatically-select-serial-ports-for-arduino)
 - [ ] Add instructions for [Fresco Drive](https://www.flir.com/support-center/iis/machine-vision/knowledge-base/usb-3.1-cameras-with-fresco-driver-limited-to-6-mb) [bandwidth modifications](http://www.uninstallhelps.com/how-to-uninstall-fresco-logic-usb3-0-host-controller.html) 
-- [ ] Add [Doric Neuroscience Studio](https://neuro.doriclenses.com/products/doric-neuroscience-studio) installation instructions
+- [x] Add [Doric Neuroscience Studio](https://neuro.doriclenses.com/products/doric-neuroscience-studio) installation instructions

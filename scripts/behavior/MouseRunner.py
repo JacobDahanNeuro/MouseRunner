@@ -7,20 +7,17 @@ import time
 import pickle
 import shutil
 import pygame
+import serial
 import operator
 import datetime
 import threading
 import PySimpleGUI as sg
+import serial.tools.list_ports
 from Run import main
 from operator import attrgetter
 from collections import namedtuple
 from itertools import compress, groupby
 from nanpy import (ArduinoApi, SerialManager)
-
-### TODO
-# 6. DeepLabCut live
-# 7. Display DeepLabCut live
-# 9. b. document 'MouseRunner'
 
 # %% Spinner Class
 class Spinner:
@@ -191,9 +188,14 @@ class App:
         self.load_window()
         self.load_favorites('FAVORITE_HOME')
 
+    def find_arduino(self):
+        self.com_port = [p.device for p in serial.tools.list_ports.comports()\
+                         if 'Arduino' in p.description].pop()
+
     def init_arduino(self,laserPin=4,shockerPin=7,ledPin=8):
         if not self.arduino_isrun:
-            self.connection = SerialManager(device = "COM4")
+            self.find_arduino()
+            self.connection = SerialManager(device = self.com_port)
             self.a          = ArduinoApi(connection=self.connection)
             pygame.mixer.quit()                                                            # ensure that pygame.mixer is not running to enable setting of sound params
             pygame.mixer.pre_init(44100, -16, 1, 2048)                                     # frequency, bit depth, channels, cache
@@ -248,6 +250,18 @@ class App:
             return favorite
         except:
             self.homepath = os.getcwd()
+            try:
+                with open(os.path.join(os.getcwd(),'previous_homepath.txt')) as f:
+                    self.homepath = f.read()
+                    self.favorite_dir = os.path.join(self.homepath,'favorites')
+                    with open(os.path.join(self.favorite_dir,'{}.txt'.format(favorite_type))) as f:
+                        favorite          = f.read()
+                with open(os.path.join(self.favorite_dir,'{}.txt'.format(favorite_type))) as f:
+                    favorite = f.read()
+                return favorite
+            except:
+                pass
+
 
     def open_window(self,title,layout,w_multiplier,h_multiplier):
         sg.theme('BlueMono')
@@ -369,10 +383,8 @@ class App:
         for mouse in self.running:
             print('\b\b\bTransfering files from %s to %s...' % (self.tmp_path,
                                                                 mouse.params_path))
-            time.sleep(5)
+            time.sleep(60)
             shutil.copytree(self.tmp_path, mouse.params_path, dirs_exist_ok=True)
-            time.sleep(5)
-        shutil.rmtree(self.tmp_path)
 
     def save_mouse_object(self,mouse_values,old_mouse=None):
         cohort         = mouse_values['COHORT']
@@ -575,7 +587,8 @@ class App:
         try:
             os.mkdir(self.tmp_path)
         except:
-            pass
+            shutil.rmtree(self.tmp_path)
+            os.mkdir(self.tmp_path)
         self.init_arduino()
         while True:
             event, values = runmice.read()
@@ -672,10 +685,10 @@ class App:
                 except:
                     self.open_error_window('Must select tones prior to running behavior.')
                     continue
-                # try:
-                self.run_mouse()
-                # except:
-                    # self.open_error_window('No mouse selected for running')
+                try:
+                    self.run_mouse()
+                except:
+                    self.open_error_window('No mouse selected for running')
             elif self.event == 'STORAGEPUSH':
                 self.storage_path = self.values['STORAGEPATH']
                 self.retired_path = os.path.join(self.homepath,'retired')
@@ -686,7 +699,5 @@ class App:
             except:
                 None
 
-# root = tk.Tk()
-# root.withdraw()
 a=App()
 a.main_app()
