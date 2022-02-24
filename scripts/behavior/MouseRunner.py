@@ -42,7 +42,7 @@ class Spinner:
     def spinner_task(self):
         while self.busy:
             #self.print_lock.acquire()
-            print("\r\b\b\b{}".format(next(self.spinner_generator)),end="")
+            print("\b\b\b\r{}".format(next(self.spinner_generator)),end="")
             #self.print_lock.release()
             # sys.stdout.write(next(self.spinner_generator))
             # sys.stdout.flush()
