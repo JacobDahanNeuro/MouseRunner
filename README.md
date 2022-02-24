@@ -73,3 +73,4 @@ After the operation is completed, move to the newly created directory `dist`, cr
 - [x] Develop `find_arduino` function for automatic handling of [COM port changes](https://stackoverflow.com/questions/24214643/python-to-automatically-select-serial-ports-for-arduino)
 - [ ] Add instructions for [Fresco Drive](https://www.flir.com/support-center/iis/machine-vision/knowledge-base/usb-3.1-cameras-with-fresco-driver-limited-to-6-mb) [bandwidth modifications](http://www.uninstallhelps.com/how-to-uninstall-fresco-logic-usb3-0-host-controller.html) 
 - [x] Add [Doric Neuroscience Studio](https://neuro.doriclenses.com/products/doric-neuroscience-studio) installation instructions
+- [ ] Add instructions for [renaming Arduino devices](https://www.eightforums.com/threads/tutorial-how-to-change-device-names-in-device-manager.15321/)
