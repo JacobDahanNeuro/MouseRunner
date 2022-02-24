@@ -351,6 +351,20 @@ class App:
                 mouse.is_naive()
                 self.mice.append(mouse)
 
+    def store_previous_homepath(self):
+        filepath = os.path.join(os.getcwd(),'previous_homepath.txt')
+        homepath = self.values['HOMEPATH']
+        with open(filepath,'w') as f:
+            f.write("%s" % homepath)
+
+    def load_previous_homepath(self):
+        filepath = os.path.join(os.getcwd(),'previous_homepath.txt')
+        try:
+            with open(filepath,'r') as f:
+                self.homepath = f.readline()
+        except:
+            self.homepath = os.getcwd()
+
     def fetch_data(self):
         self.behavior_path = os.path.join(self.homepath,'behavior')
         successful_fetch   = os.path.isdir(self.behavior_path)
@@ -372,12 +386,6 @@ class App:
         self.main.find_element('ROWSELECTED_RUNNING').Update(values=list(map(lambda mouse:mouse.return_parameters(),self.running)))
         self.main.find_element('ROWSELECTED_RUN').Update(values=list(compress(self.fetched_data, self.ran_today)))
         self.main.refresh()
-
-    def store_previous_homepath(self):
-        filepath = os.path.join(os.getcwd(),'previous_homepath.txt')
-        homepath = self.values['HOMEPATH']
-        with open(filepath,'w') as f:
-            f.write("%s" % homepath)
 
     def move_to_mouse_dir(self):
         for mouse in self.running:
@@ -631,6 +639,7 @@ class App:
         print('Storage transfer completed...')
 
     def main_app(self):
+        self.load_previous_homepath()
         self.fetch_data()
         self.generate_layout()
         self.load.close()
