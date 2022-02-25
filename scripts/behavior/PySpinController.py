@@ -149,7 +149,6 @@ class SpinnakerCamera:
                  img_width=1852,height_offset=200,width_offset=300,frame_rate=50):
         self.camera           = cam
         self.session_type     = session_type
-        self.exposure_time    = exposure_time
         self.gain             = gain
         self.gamma            = gamma
         self.frame_rate       = frame_rate
@@ -159,11 +158,13 @@ class SpinnakerCamera:
             self.img_width    = 2200
             self.height_offset= 320
             self.width_offset = 124
+            self.exposure_time= 3500
         else:
             self.img_height       = img_height
             self.img_width        = img_width
             self.height_offset    = height_offset
             self.width_offset     = -1 * width_offset * cam_num + width_offset + cam_num * 100
+            self.exposure_time    = exposure_time
         self.image_queue      = queue.Queue()
         self.display_queue    = queue.Queue()
         self.display_height   = display_height
