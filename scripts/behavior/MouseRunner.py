@@ -157,10 +157,12 @@ class SessionParams:
         self.running        = mice_running
         self.session_type   = 'Habituation' if run_values['HABITUATION'] else \
                               'Conditioning' if run_values['CONDITIONING'] else \
-                              'OFC' if run_values['OFC'] else 'Recall'
+                              'OFC' if run_values['OFC'] else\
+                              'Recall' if run_values['RECALL'] else 'Re-recall'
         self.days_completed = 0 if run_values['HABITUATION'] else \
                               1 if run_values['CONDITIONING'] else \
-                              2 if run_values['OFC'] else 3
+                              2 if run_values['OFC'] else \
+                              3 if run_values['RECALL'] else 4
         self.shock          = False if True in list(map(attrgetter('naive'),self.running)) else True
         self.cs_minus, self.pip, self.sweep = tones
 
@@ -546,7 +548,7 @@ class App:
 
     def run_mouse(self):
         title  = 'Run Mouse'
-        wscale = 1/4
+        wscale = 1/3
         hscale = 1/8
         print(self.data_selected)
         if len(self.data_selected) == 1:
@@ -560,7 +562,9 @@ class App:
                        sg.Radio('OFC','SESSIONTYPE',default=False,\
                                 key='OFC'),
                        sg.Radio('Recall','SESSIONTYPE',default=False,\
-                                key='RECALL')],
+                                key='RECALL'),
+                       sg.Radio('Re-recall','SESSIONTYPE',default=False,\
+                                key='RERECALL')],
                       [sg.OK(),sg.Cancel()]]
         elif len(self.data_selected) == 2:
             if all('Observer' in mouse_type for mouse_type in list(map(attrgetter('mouse_type'),self.data_selected))) or\
@@ -586,7 +590,9 @@ class App:
                             sg.Radio('OFC','SESSIONTYPE',default=False,\
                                 key='OFC'),
                             sg.Radio('Recall','SESSIONTYPE',default=False,\
-                                key='RECALL')],
+                                key='RECALL'),
+                            sg.Radio('Re-recall','SESSIONTYPE',default=False,\
+                                key='RERECALL')],
                           [sg.OK(),sg.Cancel()]]
         else:
             self.open_error_window('No mice selected for running')
@@ -694,10 +700,10 @@ class App:
                 except:
                     self.open_error_window('Must select tones prior to running behavior.')
                     continue
-                try:
-                    self.run_mouse()
-                except:
-                    self.open_error_window('No mouse selected for running')
+                # try:
+                self.run_mouse()
+                # except:
+                    # self.open_error_window('No mouse selected for running')
             elif self.event == 'STORAGEPUSH':
                 self.storage_path = self.values['STORAGEPATH']
                 self.retired_path = os.path.join(self.homepath,'retired')

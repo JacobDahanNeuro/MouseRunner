@@ -27,7 +27,8 @@ class DefaultParams:
     def __init__(self,session_type,shock):
         self.params = self.habituation() if session_type == 'Habituation' else\
                       self.conditioning(shock) if session_type == 'Conditioning' else\
-                      self.ofc() if session_type == 'OFC' else self.recall()
+                      self.ofc() if session_type == 'OFC' else\
+                      self.recall() if session_type == 'Recall' else self.rerecall()
         print(self.params)
         self.trial_generator()
         self.isi_generator()
@@ -42,13 +43,15 @@ class DefaultParams:
         """
         trials_nonrandom = list(iter(self.params['cs_ids'])) * self.params['stim_num']
         while True:
-            self.trials = random.sample(trials_nonrandom,len(trials_nonrandom))                    # random sample without replacement of all trials for randomized tone presentation
-            max_consecutive = max([sum(1 for _ in group) for _, group in groupby(self.trials)])
-            if max_consecutive > 2:
-                continue
+            if self.params['random']:
+                self.trials = random.sample(trials_nonrandom,len(trials_nonrandom))                    # random sample without replacement of all trials for randomized tone presentation
+                max_consecutive = max([sum(1 for _ in group) for _, group in groupby(self.trials)])
+                if max_consecutive > 2:
+                    continue
             else:
-                self.iter_trials = iter(self.trials)
-                return
+                self.trials = self.params['order']
+            self.iter_trials = iter(self.trials)
+            return
 
     def isi_generator(self):
         """
@@ -115,7 +118,9 @@ class DefaultParams:
                 'shock_id'            : None,
                 'shock'               : False,
                 'laser'               : False,
-                'laser_addl_duration' : 10}
+                'laser_addl_duration' : 10,
+                'random'              : True,
+                'order'               : None}
 
     def conditioning(self,shock):
         """
@@ -136,7 +141,9 @@ class DefaultParams:
                 'shock_id'            : 1,
                 'shock'               : True if shock else False,
                 'laser'               : True,
-                'laser_addl_duration' : 10}
+                'laser_addl_duration' : 10,
+                'random'              : True,
+                'order'               : None}
 
     def ofc(self):
         """
@@ -157,7 +164,9 @@ class DefaultParams:
                 'shock_id'            : 2,
                 'shock'               : True,
                 'laser'               : False,
-                'laser_addl_duration' : 10}
+                'laser_addl_duration' : 10,
+                'random'              : True,
+                'order'               : None}
 
     def recall(self):
         """
@@ -178,7 +187,32 @@ class DefaultParams:
                 'shock_id'            : None,
                 'shock'               : False,
                 'laser'               : False,
-                'laser_addl_duration' : 10}
+                'laser_addl_duration' : 10,
+                'random'              : True,
+                'order'               : None}
+
+    def rerecall(self):
+        """
+        This function returns easily editable session parameters for
+        RERECALL sessions to fill out DEFAULT PARAMS class. All parameters
+        are stored for future analyses. Shock ID must match a single CS ID or
+        be none-type. Stimulus number refers to iterations of EACH CS ID.
+        All times are in seconds.
+        """
+        return {'session_type'        : 'Re-recall',
+                'stim_num'            : 5,
+                'baseline'            : 300,
+                'avg_isi'             : 90,
+                'std_isi'             : 15,
+                'cs_duration'         : 30,
+                'cs_ids'              : (0,2),
+                'shock_duration'      : 1.0,
+                'shock_id'            : None,
+                'shock'               : False,
+                'laser'               : False,
+                'laser_addl_duration' : 10,
+                'random'              : False,
+                'order'               : [2,0,0,2,0,2,2,0,2,0]}
 
 class MainApp:
     """
