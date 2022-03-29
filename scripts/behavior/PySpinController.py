@@ -153,7 +153,7 @@ class SpinnakerCamera:
         self.gamma            = gamma
         self.frame_rate       = frame_rate
         self.print_lock       = print_lock
-        if self.session_type == 'Recall':
+        if self.session_type in {'Recall','Re-recall'}:
             self.img_height   = 1548
             self.img_width    = 2200
             self.height_offset= 320

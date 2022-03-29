@@ -537,7 +537,6 @@ class App:
     def retire_mouse(self):
         self.retired_path = os.path.join(self.homepath,'retired')
         for mouse in self.data_selected:
-
             mouse_retired_path = os.path.join(self.retired_path,\
                                               os.path.relpath(mouse.params_path,self.behavior_path))
             os.makedirs(os.path.dirname(mouse_retired_path),exist_ok=True)
