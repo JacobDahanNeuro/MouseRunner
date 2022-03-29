@@ -62,13 +62,15 @@ class DefaultParams:
         ISI is present.
         """
         while True:
-            self.isis = np.random.normal(self.params['avg_isi'],
-                                         self.params['std_isi'],
-                                         len(self.trials))
-            if any (isi < (self.params['avg_isi'] / 2) for isi in self.isis):
-                continue
+            if self.params['random']:
+                self.isis = np.random.normal(self.params['avg_isi'],
+                                             self.params['std_isi'],
+                                             len(self.trials))
+                if any (isi < (self.params['avg_isi'] / 2) for isi in self.isis):
+                    continue
             else:
-                return
+                self.isis = self.params['timing']
+            return
 
     def trialize(self):
         """
@@ -120,7 +122,8 @@ class DefaultParams:
                 'laser'               : False,
                 'laser_addl_duration' : 10,
                 'random'              : True,
-                'order'               : None}
+                'order'               : None,
+                'timing'              : None}
 
     def conditioning(self,shock):
         """
@@ -143,7 +146,8 @@ class DefaultParams:
                 'laser'               : True,
                 'laser_addl_duration' : 10,
                 'random'              : True,
-                'order'               : None}
+                'order'               : None,
+                'timing'              : None}
 
     def ofc(self):
         """
@@ -166,7 +170,8 @@ class DefaultParams:
                 'laser'               : False,
                 'laser_addl_duration' : 10,
                 'random'              : True,
-                'order'               : None}
+                'order'               : None,
+                'timing'              : None}
 
     def recall(self):
         """
@@ -189,7 +194,8 @@ class DefaultParams:
                 'laser'               : False,
                 'laser_addl_duration' : 10,
                 'random'              : True,
-                'order'               : None}
+                'order'               : None,
+                'timing'              : None}
 
     def rerecall(self):
         """
@@ -212,7 +218,10 @@ class DefaultParams:
                 'laser'               : False,
                 'laser_addl_duration' : 10,
                 'random'              : False,
-                'order'               : [2,0,0,2,0,2,2,0,2,0]}
+                'order'               : [2, 0, 2, 0, 0, 2, 0, 2, 2, 0],
+                'timing'              : np.array([ 68.67691428,  83.58198953,  85.9730932 , 107.13879971,
+                                                   83.51633344,  99.31424327,  86.91671774,  70.47208268,
+                                                   85.47353083,  75.12513836])}
 
 class MainApp:
     """
