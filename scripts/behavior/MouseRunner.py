@@ -1,5 +1,5 @@
 #!C:\Users\jacobdahan\Anaconda3\envs\MouseRunner\python.exe
-import pdb
+
 import os
 import sys
 import glob
@@ -109,30 +109,34 @@ class Email:
         self.recipient = TO if TO else FROM
         self.subject   = SUBJECT if SUBJECT else 'MouseRunner Session Completed'
         self.to_send   = SEND
-        self.generate_contents(CONTENTS)
+        self.contents  = CONTENTS
         self.init_mail(PW)
         
-    def generate_contents(self,CONTENTS):
+    def init_mail(self,PW):
+        self.email = yagmail.SMTP(self.sender, PW)
+        
+    def generate_contents(self):
         if type(self.mouse) == Mouse:
-            self.contents = CONTENTS if CONTENTS else\
+            self.contents = self.contents if self.contents else\
                            'Notice of completion of behavioral session for mouse\
                             {} (type: {}) at time {} on {}.'.format(self.mouse.mouse_id,\
                             self.mouse.mouse_type,datetime.datetime.now().strftime('%H:%M:%S'),\
                             datetime.datetime.now().strftime('%D'))
         else:
-            self.contents = CONTENTS if CONTENTS else\
+            self.contents = self.contents if self.contents else\
                            'Notice of completion of behavioral session for mice\
                             {} and {} at time {} on {}.'.format(self.mouse[0].mouse_id,\
                             self.mouse[1].mouse_id,datetime.datetime.now().strftime('%H:%M:%S'),\
                             datetime.datetime.now().strftime('%D'))
-    def init_mail(self,PW):
-        self.email = yagmail.SMTP(self.sender, PW)
         
     def send(self):
-        print(self.to_send)
-        if self.to_send:
-            self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
-            print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
+        try:
+            if self.to_send:
+                self.generate_contents()
+                self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
+                print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
+        except:
+            print('\b\b\bFailed to deliver email notification of behavior completion to %s...' % (self.recipient))
 
 # %% Mouse class
 class Mouse:
@@ -701,7 +705,7 @@ class App:
         self.generate_layout()
         self.load.close()
         self.wscale = 1/1.5
-        self.hscale = 1/1.25
+        self.hscale = 1/1.15
         self.main   = self.open_window(self.title,self.layout,self.wscale,self.hscale)
         self.main.BringToFront()
         while True:
