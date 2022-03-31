@@ -8,6 +8,7 @@ import pickle
 import shutil
 import pygame
 import serial
+import yagmail
 import operator
 import datetime
 import threading
@@ -98,6 +99,39 @@ class NamedMouse(namedtuple('Mouse','id MouseObject')):
         return hash(self.id)
     def __eq__(self,other):
         return self.id == other.id
+
+# %% Email class
+class Email:
+    
+    def __init__(self,DATA,FROM,TO=None,SUBJECT=None,CONTENTS=None,PW=None,SEND=False):
+        self.mouse     = next(iter(DATA)).mouse_id if len(DATA) == 1 else\
+                         list(map(attrgetter('mouse_id'),DATA))
+        self.sender    = FROM
+        self.recipient = TO if TO else FROM
+        self.subject   = SUBJECT if SUBJECT else 'MouseRunner Session Completed'
+        self.to_send   = SEND
+        self.generate_contents(CONTENTS)
+        self.init_mail(PW)
+        
+    def generate_contents(self,CONTENTS):
+        if len(self.mouse == 1):
+            self.contents = CONTENTS if CONTENTS else\
+                           'Notice of completion of behavioral session for mouse\
+                            {} (type: {}) at time {} on {}.'.format(self.mouse.mouse_id,\
+                            self.mouse.mouse_type,datetime.now().strftime('%H:%M:%S'),\
+                            datetime.now().strftime('%D'))
+        else:
+            self.contents = CONTENTS if CONTENTS else\
+                           'Notice of completion of behavioral session for mice\
+                            {} and {} at time {} on {}.'.format(self.mouse[0].mouse_id,\
+                            self.mouse[1].mouse_id,datetime.now().strftime('%H:%M:%S'),\
+                            datetime.now().strftime('%D'))
+    def init_mail(self,PW):
+        self.email = yagmail.SMTP(self.sender, PW)
+        
+    def send(self):
+        if self.to_send:
+            self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
 
 # %% Mouse class
 class Mouse:
@@ -290,7 +324,18 @@ class App:
         self.title     = 'Mouse Runner'
         self.headings  = ['Cohort','Mouse ID', 'Mouse Type',\
                           'Hole Punch','CS+1','CS+2','Days Completed']
-        self.layout    = [[sg.Text('Home Folder:',size=(15,1),justification='right'),
+        self.layout    = [[sg.Checkbox('Email Updates',default=True,\
+                                       enable_events=False,key='SEND_EMAIL')],
+                          [sg.Text('Email:',size=(15,1),justification='right'),\
+                           sg.InputText(default_text='{}'.format(self.load_favorites('FAVORITE_EMAIL')),\
+                                        enable_events=False,key='EMAIL_INPUT'),\
+                           sg.Button('Save favorite',key='FAVORITE_EMAIL',size=(21,1))],
+                          [sg.Text('Password:',size=(15,1),justification='right'),\
+                           sg.InputText(default_text='{}'.format(self.load_favorites('FAVORITE_PW')),\
+                                        enable_events=False,key='PASSWORD_INPUT',\
+                                        password_char='*'),\
+                           sg.Button('Save favorite',key='FAVORITE_PW',size=(21,1))],
+                          [sg.Text('Home Folder:',size=(15,1),justification='right'),
                            sg.In(default_text='{}'.format(self.load_favorites('FAVORITE_HOME')),\
                                  enable_events=True,key='HOMEPATH'),
                            sg.FolderBrowse('Select Folder',target='HOMEPATH'),
@@ -300,6 +345,7 @@ class App:
                                  enable_events=True,key='STORAGEPATH'),
                            sg.FolderBrowse('Select Folder',target='STORAGEPATH'),
                            sg.Button('Save favorite',key='FAVORITE_STORAGE')],
+
                           [sg.Text('To run',font='Arial 10',justification='center')],
                           [sg.Table(values=list(compress(self.fetched_data, map(operator.not_,self.ran_today))),\
                                     headings=self.headings,auto_size_columns=False,\
@@ -619,6 +665,8 @@ class App:
                     else:
                         runmice.close()
                         break
+        self.email = Email(self.data_selected,FROM=self.values['EMAIL_INPUT'],\
+                           PW=self.values['PASSWORD_INPUT'])
         self.running = self.data_selected
         self.session_params = SessionParams(self.tmp_path,values,self.running,self.tones)
         self.session_params.package()
@@ -626,6 +674,7 @@ class App:
         self.run_thread = threading.Thread(target=main,args=(self.a,self.connection,self.session_params))
         self.run_thread.start()
         self.run_thread.join()
+        self.email.send()
         with Spinner():
             self.move_to_mouse_dir()
         self.running = [Mouse(None,None,None,None,None,None,None)]
@@ -699,10 +748,10 @@ class App:
                 except:
                     self.open_error_window('Must select tones prior to running behavior.')
                     continue
-                # try:
-                self.run_mouse()
-                # except:
-                    # self.open_error_window('No mouse selected for running')
+                try:
+                    self.run_mouse()
+                except:
+                    self.open_error_window('No mouse selected for running')
             elif self.event == 'STORAGEPUSH':
                 self.storage_path = self.values['STORAGEPATH']
                 self.retired_path = os.path.join(self.homepath,'retired')
