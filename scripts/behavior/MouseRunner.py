@@ -1,5 +1,5 @@
 #!C:\Users\jacobdahan\Anaconda3\envs\MouseRunner\python.exe
-
+import pdb
 import os
 import sys
 import glob
@@ -104,8 +104,7 @@ class NamedMouse(namedtuple('Mouse','id MouseObject')):
 class Email:
     
     def __init__(self,DATA,FROM,TO=None,SUBJECT=None,CONTENTS=None,PW=None,SEND=False):
-        self.mouse     = next(iter(DATA)).mouse_id if len(DATA) == 1 else\
-                         list(map(attrgetter('mouse_id'),DATA))
+        self.mouse     = next(iter(DATA)) if len(DATA) == 1 else DATA
         self.sender    = FROM
         self.recipient = TO if TO else FROM
         self.subject   = SUBJECT if SUBJECT else 'MouseRunner Session Completed'
@@ -114,24 +113,26 @@ class Email:
         self.init_mail(PW)
         
     def generate_contents(self,CONTENTS):
-        if len(self.mouse == 1):
+        if type(self.mouse) == Mouse:
             self.contents = CONTENTS if CONTENTS else\
                            'Notice of completion of behavioral session for mouse\
                             {} (type: {}) at time {} on {}.'.format(self.mouse.mouse_id,\
-                            self.mouse.mouse_type,datetime.now().strftime('%H:%M:%S'),\
-                            datetime.now().strftime('%D'))
+                            self.mouse.mouse_type,datetime.datetime.now().strftime('%H:%M:%S'),\
+                            datetime.datetime.now().strftime('%D'))
         else:
             self.contents = CONTENTS if CONTENTS else\
                            'Notice of completion of behavioral session for mice\
                             {} and {} at time {} on {}.'.format(self.mouse[0].mouse_id,\
-                            self.mouse[1].mouse_id,datetime.now().strftime('%H:%M:%S'),\
-                            datetime.now().strftime('%D'))
+                            self.mouse[1].mouse_id,datetime.datetime.now().strftime('%H:%M:%S'),\
+                            datetime.datetime.now().strftime('%D'))
     def init_mail(self,PW):
         self.email = yagmail.SMTP(self.sender, PW)
         
     def send(self):
+        print(self.to_send)
         if self.to_send:
             self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
+            print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
 
 # %% Mouse class
 class Mouse:
@@ -216,7 +217,9 @@ class App:
         self.running          = [Mouse(None,None,None,None,None,None,None)]
         self.arduino_isrun    = False
         self.recording_format = recording_format
-        self.k_to_v_dict      = {'FAVORITE_HOME'   :'HOMEPATH',\
+        self.k_to_v_dict      = {'FAVORITE_EMAIL'  :'EMAIL_INPUT',\
+                                 'FAVORITE_PW'     :'PASSWORD_INPUT',\
+                                 'FAVORITE_HOME'   :'HOMEPATH',\
                                  'FAVORITE_STORAGE':'STORAGEPATH',\
                                  'FAVORITE_CSMINUS':'CSMINUSPATH',\
                                  'FAVORITE_PIP'    :'PIPPATH',\
@@ -666,7 +669,7 @@ class App:
                         runmice.close()
                         break
         self.email = Email(self.data_selected,FROM=self.values['EMAIL_INPUT'],\
-                           PW=self.values['PASSWORD_INPUT'])
+                           PW=self.values['PASSWORD_INPUT'],SEND=self.values['SEND_EMAIL'])
         self.running = self.data_selected
         self.session_params = SessionParams(self.tmp_path,values,self.running,self.tones)
         self.session_params.package()
@@ -748,10 +751,10 @@ class App:
                 except:
                     self.open_error_window('Must select tones prior to running behavior.')
                     continue
-                try:
-                    self.run_mouse()
-                except:
-                    self.open_error_window('No mouse selected for running')
+                # try:
+                self.run_mouse()
+                # except:
+                    # self.open_error_window('No mouse selected for running')
             elif self.event == 'STORAGEPUSH':
                 self.storage_path = self.values['STORAGEPATH']
                 self.retired_path = os.path.join(self.homepath,'retired')
