@@ -236,7 +236,9 @@ class Plot:
     def __init__(self,params):
         self.trials       = np.array(params.trials)
         self.intervals    = params.trial_duration
+        self.baseline     = params.params['baseline']
         self.shock_id     = params.params['shock_id']
+        self.title        = params.params['session_type']
         self.shock_trials = np.where(self.shock_id == self.trials, 1, 0)
         self.x_array      = [trial + 1 for trial in range(len(self.trials))]
         self.norm_trials  = (self.trials - np.min(self.trials))\
@@ -245,12 +247,11 @@ class Plot:
         self.edgecolors   = ['black' if is_shock else 'None' for is_shock in self.shock_trials]
         self.scatter_left = None
         self.scatter      = None
-        self.title        = params.params['session_type']
 
     def init_plot(self,monitor=get_monitors(),display_w=1200,display_h=450):
         plt.ion()
         self.monitor_w = next(iter(monitor)).width
-        self.geometry = (self.monitor_w - display_w + 8, display_h + 8) + (display_w, int(display_h / 2))
+        self.geometry = (self.monitor_w - display_w + 8, display_h + 15) + (display_w, int(display_h / 2))
         self.fig       = plt.figure(figsize=(12,2),dpi=100)
         self.ax        = self.fig.add_subplot(111)
         self.window    = plt.get_current_fig_manager().window
@@ -267,7 +268,7 @@ class Plot:
         plt.yticks(ticks=[0,1,2],labels=['CS Minus','CS Plus One','CS Plus Two'])
         plt.xticks([])
         plt.show(block=False)
-        plt.pause(self.intervals[0])
+        plt.pause(self.baseline)
 
     def plot(self):
         self.init_plot()
@@ -300,7 +301,7 @@ class Plot:
             plt.yticks(ticks=[0,1,2],labels=['CS Minus','CS Plus One','CS Plus Two'])
             plt.xticks([])
             plt.show(block=False)
-            plt.pause(self.intervals[trial_num])
+            plt.pause(self.intervals[counter])
         plt.pause(30)
         plt.close()
 

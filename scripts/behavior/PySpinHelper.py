@@ -479,7 +479,8 @@ def set_gain_params(nodemap,GAIN=10):
 
 def set_gamma(nodemap,GAMMA=0.75):
     """
-    This function sets the parameter Gamma for fixed, optimized gamma recordings.
+    This function turns ON the Gamma option GammEnable to enable manual control
+    of the Gamma and sets the parameter Gamma for fixed, optimized Gamma recordings.
     :param nodemap: Map of all SpinnakerCamera object parameters
     :type node: INodeMap
     :param GAMMA: Desired gamma
@@ -488,6 +489,12 @@ def set_gamma(nodemap,GAMMA=0.75):
     :type successful_param_change: bool
     """
     successful_param_change = False
+    node_gamma_enable = PySpin.CBooleanPtr(nodemap.GetNode("GammaEnable"))
+    if PySpin.IsAvailable(node_gamma_enable):
+        node_gamma_enable.SetValue(True)
+        print("Gamma enable set to %s..." % node_gamma_enable.GetValue())
+    else:
+        print("Gamma enable mode not available...")
     node_gamma = PySpin.CFloatPtr(nodemap.GetNode("Gamma"))
     if PySpin.IsAvailable(node_gamma) and PySpin.IsWritable(node_gamma):
         try:
