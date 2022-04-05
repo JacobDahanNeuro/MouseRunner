@@ -15,6 +15,7 @@ import threading
 import PySimpleGUI as sg
 import serial.tools.list_ports
 from Run import main
+from queue import Queue
 from operator import attrgetter
 from collections import namedtuple
 from itertools import compress, groupby
@@ -102,41 +103,36 @@ class NamedMouse(namedtuple('Mouse','id MouseObject')):
 
 # %% Email class
 class Email:
-    
+
     def __init__(self,DATA,FROM,TO=None,SUBJECT=None,CONTENTS=None,PW=None,SEND=False):
         self.mouse     = next(iter(DATA)) if len(DATA) == 1 else DATA
         self.sender    = FROM
         self.recipient = TO if TO else FROM
         self.subject   = SUBJECT if SUBJECT else 'MouseRunner Session Completed'
         self.to_send   = SEND
-        self.contents  = CONTENTS
+        self.generate_contents(CONTENTS)
         self.init_mail(PW)
-        
-    def init_mail(self,PW):
-        self.email = yagmail.SMTP(self.sender, PW)
-        
-    def generate_contents(self):
+
+    def generate_contents(self,CONTENTS):
         if type(self.mouse) == Mouse:
-            self.contents = self.contents if self.contents else\
+            self.contents = CONTENTS if CONTENTS else\
                            'Notice of completion of behavioral session for mouse\
                             {} (type: {}) at time {} on {}.'.format(self.mouse.mouse_id,\
                             self.mouse.mouse_type,datetime.datetime.now().strftime('%H:%M:%S'),\
                             datetime.datetime.now().strftime('%D'))
         else:
-            self.contents = self.contents if self.contents else\
+            self.contents = CONTENTS if CONTENTS else\
                            'Notice of completion of behavioral session for mice\
                             {} and {} at time {} on {}.'.format(self.mouse[0].mouse_id,\
                             self.mouse[1].mouse_id,datetime.datetime.now().strftime('%H:%M:%S'),\
                             datetime.datetime.now().strftime('%D'))
-        
+    def init_mail(self,PW):
+        self.email = yagmail.SMTP(self.sender, PW)
+
     def send(self):
-        try:
-            if self.to_send:
-                self.generate_contents()
-                self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
-                print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
-        except:
-            print('\b\b\bFailed to deliver email notification of behavior completion to %s...' % (self.recipient))
+        if self.to_send:
+            self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
+            print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
 
 # %% Mouse class
 class Mouse:
@@ -674,12 +670,16 @@ class App:
                         break
         self.email = Email(self.data_selected,FROM=self.values['EMAIL_INPUT'],\
                            PW=self.values['PASSWORD_INPUT'],SEND=self.values['SEND_EMAIL'])
-        self.running = self.data_selected
+        self.running     = self.data_selected
+        self.plot_queue  = Queue()
         self.session_params = SessionParams(self.tmp_path,values,self.running,self.tones)
         self.session_params.package()
         self.update_table()
-        self.run_thread = threading.Thread(target=main,args=(self.a,self.connection,self.session_params))
+        self.run_thread = threading.Thread(target=main,args=(self.a,self.connection,\
+                                                             self.session_params,self.plot_queue))
         self.run_thread.start()
+        self.plot = self.plot_queue.get()
+        self.plot.plot()
         self.run_thread.join()
         self.email.send()
         with Spinner():
