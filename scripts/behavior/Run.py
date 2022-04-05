@@ -302,7 +302,6 @@ class Plot:
             plt.xticks([])
             plt.show(block=False)
             plt.pause(self.intervals[counter])
-        plt.pause(30)
         plt.close()
 
 class MainApp:

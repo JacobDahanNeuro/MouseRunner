@@ -109,30 +109,35 @@ class Email:
         self.sender    = FROM
         self.recipient = TO if TO else FROM
         self.subject   = SUBJECT if SUBJECT else 'MouseRunner Session Completed'
+        self.contents  = CONTENTS
+        self.pw        = PW
         self.to_send   = SEND
-        self.generate_contents(CONTENTS)
-        self.init_mail(PW)
 
-    def generate_contents(self,CONTENTS):
+    def generate_contents(self):
         if type(self.mouse) == Mouse:
-            self.contents = CONTENTS if CONTENTS else\
+            self.contents = self.contents if self.contents else\
                            'Notice of completion of behavioral session for mouse\
                             {} (type: {}) at time {} on {}.'.format(self.mouse.mouse_id,\
                             self.mouse.mouse_type,datetime.datetime.now().strftime('%H:%M:%S'),\
                             datetime.datetime.now().strftime('%D'))
         else:
-            self.contents = CONTENTS if CONTENTS else\
+            self.contents = self.contents if self.contents else\
                            'Notice of completion of behavioral session for mice\
                             {} and {} at time {} on {}.'.format(self.mouse[0].mouse_id,\
                             self.mouse[1].mouse_id,datetime.datetime.now().strftime('%H:%M:%S'),\
                             datetime.datetime.now().strftime('%D'))
-    def init_mail(self,PW):
-        self.email = yagmail.SMTP(self.sender, PW)
+    def init_mail(self):
+        self.email = yagmail.SMTP(self.sender, self.pw)
 
     def send(self):
-        if self.to_send:
-            self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
-            print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
+        try:
+            if self.to_send:
+                self.generate_contents(self.contents)
+                self.init_mail()
+                self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
+                print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
+        except:
+            print('\b\b\bUnable to send email notification of behavior completion to %s...' % (self.recipient))
 
 # %% Mouse class
 class Mouse:
