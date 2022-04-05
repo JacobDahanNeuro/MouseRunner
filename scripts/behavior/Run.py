@@ -7,10 +7,18 @@ import random
 import pickle
 import pygame
 import threading
-import PySpinController
+import matplotlib
 import numpy as np
+import multiprocessing
+import PySpinController
+matplotlib.use("Qt5Agg")
+from PyQt5 import QtCore
 from itertools import groupby
 from datetime import datetime
+# from IPython import get_ipython
+import matplotlib.pyplot as plt
+from screeninfo import get_monitors
+# get_ipython().run_line_magic('matplotlib', 'qt5')
 
 # %% Default Parameters class
 class DefaultParams:
@@ -223,6 +231,79 @@ class DefaultParams:
                                                    83.51633344,  99.31424327,  86.91671774,  70.47208268,
                                                    85.47353083,  75.12513836])}
 
+class Plot:
+
+    def __init__(self,params):
+        self.trials       = np.array(params.trials)
+        self.intervals    = params.trial_duration
+        self.shock_id     = params.params['shock_id']
+        self.shock_trials = np.where(self.shock_id == self.trials, 1, 0)
+        self.x_array      = [trial + 1 for trial in range(len(self.trials))]
+        self.norm_trials  = (self.trials - np.min(self.trials))\
+                          / (np.max(self.trials) - np.min(self.trials))
+        self.colors       = plt.cm.rainbow(self.norm_trials)
+        self.edgecolors   = ['black' if is_shock else 'None' for is_shock in self.shock_trials]
+        self.scatter_left = None
+        self.scatter      = None
+        self.title        = params.params['session_type']
+
+    def init_plot(self,monitor=get_monitors(),display_w=1200,display_h=450):
+        plt.ion()
+        self.monitor_w = next(iter(monitor)).width
+        self.geometry = (self.monitor_w - display_w + 8, display_h + 8) + (display_w, int(display_h / 2))
+        self.fig       = plt.figure(figsize=(12,2),dpi=100)
+        self.ax        = self.fig.add_subplot(111)
+        self.window    = plt.get_current_fig_manager().window
+        self.window.setGeometry(*self.geometry)
+
+    def start_baseline(self):
+        self.scatter  = plt.scatter(x=self.x_array,\
+                                    y=self.trials,s=500,\
+                                    facecolors=self.edgecolors,\
+                                    linewidth=3,edgecolor=self.colors)
+        plt.title('%s' % self.title)
+        plt.ylim([-1,3])
+        plt.xlim([min(self.x_array) - 1, max(self.x_array) + 1])
+        plt.yticks(ticks=[0,1,2],labels=['CS Minus','CS Plus One','CS Plus Two'])
+        plt.xticks([])
+        plt.show(block=False)
+        plt.pause(self.intervals[0])
+
+    def plot(self):
+        self.init_plot()
+        self.window.setWindowFlags(self.window.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+        self.window.show()
+        self.window.setWindowFlags(self.window.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint)
+        self.window.show()
+        self.start_baseline()
+        for (counter,trial_num) in enumerate(self.x_array):
+            try:
+                while len(self.ax.lines) > 0:
+                    self.ax.lines.pop()
+                    self.scatter_left.set_visible = False
+                    self.scatter.set_visible = False
+            except:
+                pass
+            plt.axvline(x=trial_num,ymin=0,ymax=1,color='black',zorder=0)
+            self.scatter_left = plt.scatter(x=self.x_array[0:trial_num],\
+                                            y=self.trials[0:trial_num],s=500,\
+                                            c=self.colors[0:trial_num],
+                                            marker='o',linewidth=3,\
+                                            edgecolor=self.edgecolors[0:trial_num])
+            self.this_scatter = plt.scatter(x=self.x_array[trial_num:],\
+                                            y=self.trials[trial_num:],s=500,\
+                                            facecolors=self.edgecolors[trial_num:],\
+                                            linewidth=3,edgecolor=self.colors[trial_num:])
+            plt.title('%s' % self.title)
+            plt.ylim([-1,3])
+            plt.xlim([min(self.x_array) - 1, max(self.x_array) + 1])
+            plt.yticks(ticks=[0,1,2],labels=['CS Minus','CS Plus One','CS Plus Two'])
+            plt.xticks([])
+            plt.show(block=False)
+            plt.pause(self.intervals[trial_num])
+        plt.pause(30)
+        plt.close()
+
 class MainApp:
     """
     This class initializes the session log, generates and saves session
@@ -241,16 +322,17 @@ class MainApp:
     :param ledPin: Arduino pin designated for LED output trigger.
     :type ledPin: int
     """
-    def __init__(self,a,connection,session_params,laserPin,shockerPin,ledPin):
-        self.a = a
+    def __init__(self,a,connection,session_params,plot_queue,laserPin,shockerPin,ledPin):
+        self.a          = a
         self.connection = connection
-        self.params = session_params
-        self.laserPin = laserPin
+        self.params     = session_params
+        self.plot_queue = plot_queue
+        self.laserPin   = laserPin
         self.shockerPin = shockerPin
-        self.ledPin = ledPin
+        self.ledPin     = ledPin
         self.mice = next(iter(self.params.save_params['mice'])) if len(self.params.save_params['mice']) == 1 else\
                     '+'.join(self.params.save_params['mice'])
-        self.log = open(os.path.join(self.params.save_params['tmp_path'],"day{}-{}-log.txt".format(self.params.save_params['day'],self.mice)),"a")
+        self.log  = open(os.path.join(self.params.save_params['tmp_path'],"day{}-{}-log.txt".format(self.params.save_params['day'],self.mice)),"a")
 
     def fetch_defaults(self):
         """
@@ -262,6 +344,13 @@ class MainApp:
         self.default_params.save(self.params.save_params,self.mice)
         print(self.default_params.trials)
         print(self.default_params.trial_start_times)
+
+    def generate_liveplot(self):
+        """
+        This function generates a plot object using information from previously
+        defined class attribute DEFAULT_PARAMS.
+        """
+        self.plot = Plot(self.default_params)
 
     def pause(self,pause):
         """
@@ -354,6 +443,7 @@ class MainApp:
         print("\bStart Time: " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         self.print_lock.release()
         self.start_time = time.time()
+        self.plot_queue.put(self.plot)
         self.pause(self.default_params.params['baseline'] - self.default_params.params['laser_addl_duration'])
         self.session()
         self.log.close()
@@ -417,8 +507,7 @@ class MainApp:
         print("\bledOFF", time.time() - self.trial_start)
         # self.print_lock.release()
 
-
-def main(a,connection,session_params,laserPin=4,shockerPin=7,ledPin=8):
+def main(a,connection,session_params,plot_queue,laserPin=4,shockerPin=7,ledPin=8):
     """
     This function is the highest level behavioral controller, initializing the
     behavior app MainApp, fetching default parameters, and starting the session.
@@ -435,6 +524,7 @@ def main(a,connection,session_params,laserPin=4,shockerPin=7,ledPin=8):
     :param ledPin: Arduino pin designated for LED output trigger.
     :type ledPin: int
     """
-    main_app = MainApp(a,connection,session_params,laserPin,shockerPin,ledPin)
+    main_app = MainApp(a,connection,session_params,plot_queue,laserPin,shockerPin,ledPin)
     main_app.fetch_defaults()
+    main_app.generate_liveplot()
     main_app.run()
