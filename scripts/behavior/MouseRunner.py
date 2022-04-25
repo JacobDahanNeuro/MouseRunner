@@ -132,7 +132,7 @@ class Email:
     def send(self):
         try:
             if self.to_send:
-                self.generate_contents(self.contents)
+                self.generate_contents()
                 self.init_mail()
                 self.email.send(to=self.recipient,subject=self.subject,contents=self.contents)
                 print('\b\b\bSending email notification of behavior completion to %s...' % (self.recipient))
