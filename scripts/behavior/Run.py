@@ -49,12 +49,12 @@ class DefaultParams:
         until no more than two back-to-back trials of a single trial-type are
         present.
         """
-        trials_nonrandom = list(iter(self.params['cs_ids'])) * self.params['stim_num']
+        trials_nonrandom = np.repeat(self.params['cs_ids'],self.params['cs_repeats']).tolist()
         while True:
             if self.params['random']:
                 self.trials = random.sample(trials_nonrandom,len(trials_nonrandom))                    # random sample without replacement of all trials for randomized tone presentation
                 max_consecutive = max([sum(1 for _ in group) for _, group in groupby(self.trials)])
-                if max_consecutive > 2:
+                if max_consecutive > 2 or len(np.unique(trials_nonrandom) == 1):
                     continue
             else:
                 self.trials = self.params['order']
@@ -118,20 +118,23 @@ class DefaultParams:
         All times are in seconds.
         """
         return {'session_type'        : 'Habituation',
-                'stim_num'            : 4,
                 'baseline'            : 180,
                 'avg_isi'             : 60,
                 'std_isi'             : 15,
                 'cs_duration'         : 30,
                 'cs_ids'              : (0,1,2),
+                'cs_repeats'          : (8,4,4),
                 'shock_duration'      : 1.0,
                 'shock_id'            : None,
                 'shock'               : False,
                 'laser'               : False,
                 'laser_addl_duration' : 10,
-                'random'              : True,
-                'order'               : None,
-                'timing'              : None}
+                'random'              : False,
+                'order'               : [0, 0, 2, 0, 1, 2, 1, 0, 2, 0, 1, 1, 0, 2, 0, 0],
+                'timing'              : np.array([ 74.82176945, 55.41945447, 61.75785047, 47.52070435,
+                                                   54.23889192, 45.71200062, 57.34069709, 59.77877237, 
+                                                   74.32395161, 57.81340795, 53.45014845, 75.49022935, 
+                                                   59.69082781, 66.50032699, 60.45184117, 44.26133661])}
 
     def conditioning(self,shock):
         """
@@ -142,20 +145,21 @@ class DefaultParams:
         All times are in seconds.
         """
         return {'session_type'        : 'Conditioning',
-                'stim_num'            : 5,
                 'baseline'            : 300,
-                'avg_isi'             : 90,
+                'avg_isi'             : 120,
                 'std_isi'             : 15,
                 'cs_duration'         : 30,
-                'cs_ids'              : (0,1),
+                'cs_ids'              : (1,),
+                'cs_repeats'          : (5,),
                 'shock_duration'      : 1.0,
                 'shock_id'            : 1,
                 'shock'               : True if shock else False,
                 'laser'               : True,
                 'laser_addl_duration' : 10,
-                'random'              : True,
-                'order'               : None,
-                'timing'              : None}
+                'random'              : False,
+                'order'               : [1, 1, 1, 1, 1],
+                'timing'              : np.array([ 138.59428872,  99.48363471, 111.33151715,
+                                                   103.11090328, 102.50545536])}
 
     def ofc(self):
         """
@@ -166,20 +170,22 @@ class DefaultParams:
         All times are in seconds.
         """
         return {'session_type'        : 'OFC',
-                'stim_num'            : 5,
                 'baseline'            : 300,
-                'avg_isi'             : 90,
+                'avg_isi'             : 120,
                 'std_isi'             : 15,
                 'cs_duration'         : 30,
-                'cs_ids'              : (0,2),
+                'cs_ids'              : (2,),
+                'cs_repeats'          : (10,),
                 'shock_duration'      : 1.0,
                 'shock_id'            : 2,
                 'shock'               : True,
                 'laser'               : False,
                 'laser_addl_duration' : 10,
-                'random'              : True,
-                'order'               : None,
-                'timing'              : None}
+                'random'              : False,
+                'order'               : [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                'timing'              : np.array([ 136.549197  , 118.39688651,  95.44064276, 138.42647164,
+                                                   100.0653403 , 114.56076754, 112.07743622, 102.34976023,
+                                                   112.15625473, 129.26775207])}
 
     def recall(self):
         """
@@ -190,20 +196,23 @@ class DefaultParams:
         All times are in seconds.
         """
         return {'session_type'        : 'Recall',
-                'stim_num'            : 5,
                 'baseline'            : 300,
-                'avg_isi'             : 90,
+                'avg_isi'             : 120,
                 'std_isi'             : 15,
                 'cs_duration'         : 30,
                 'cs_ids'              : (0,1,2),
+                'cs_repeats'          : (5,5,5),
                 'shock_duration'      : 1.0,
                 'shock_id'            : None,
                 'shock'               : False,
                 'laser'               : False,
                 'laser_addl_duration' : 10,
-                'random'              : True,
-                'order'               : None,
-                'timing'              : None}
+                'random'              : False,
+                'order'               : [0, 1, 2, 2, 0, 1, 0, 2, 1, 1, 0, 2, 2, 1, 0],
+                'timing'              : np.array([ 106.15497496, 130.30779892, 123.2206702 , 126.98051646,
+                                                   118.87659538, 137.89354629, 122.39318269, 118.42617231,
+                                                   153.93937124, 124.51276133, 120.82135785, 120.17697217,
+                                                   143.93220819, 120.35970326, 119.84290389])}
 
     def rerecall(self):
         """
@@ -214,12 +223,12 @@ class DefaultParams:
         All times are in seconds.
         """
         return {'session_type'        : 'Re-recall',
-                'stim_num'            : 5,
                 'baseline'            : 300,
-                'avg_isi'             : 90,
+                'avg_isi'             : 120,
                 'std_isi'             : 15,
                 'cs_duration'         : 30,
                 'cs_ids'              : (0,2),
+                'cs_repeats'          : (5,5),
                 'shock_duration'      : 1.0,
                 'shock_id'            : None,
                 'shock'               : False,
@@ -227,9 +236,9 @@ class DefaultParams:
                 'laser_addl_duration' : 10,
                 'random'              : False,
                 'order'               : [2, 0, 2, 0, 0, 2, 0, 2, 2, 0],
-                'timing'              : np.array([ 68.67691428,  83.58198953,  85.9730932 , 107.13879971,
-                                                   83.51633344,  99.31424327,  86.91671774,  70.47208268,
-                                                   85.47353083,  75.12513836])}
+                'timing'              : np.array([ 122.36021167, 139.0579861 , 131.38335911, 112.62238674,
+                                                   113.06786161, 115.37928829, 113.20774832, 108.72449678,
+                                                   110.91079537, 124.25052878])}
 
 class Plot:
 

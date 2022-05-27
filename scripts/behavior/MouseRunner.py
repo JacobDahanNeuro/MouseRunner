@@ -774,5 +774,6 @@ class App:
             except:
                 None
 
-a=App()
-a.main_app()
+if __name__ == "__main__":
+    a=App()
+    a.main_app()
