@@ -6,7 +6,6 @@ Created on Tue Nov  9 15:51:09 2021
 """
 
 import os
-import pdb
 import time
 import operator
 import datetime
@@ -20,6 +19,16 @@ import matplotlib.pyplot as plt
 from classes import Statistics, InterpolatedAnalysis
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
+class AnalysisStruct():
+    
+    def __init__(self,**kwargs):
+        self.Set(**kwargs)
+        
+    def Set(self,**kwargs):
+        self.__dict__.update(kwargs)
+        
+    def SetAttr(self,lab,val):
+        self.__dict__[lab] = val
 
 def gen_stats(df,mousetype):
     statistics    = dict()
