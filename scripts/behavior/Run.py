@@ -2,6 +2,7 @@
 
 # %% Import toolboxes
 import os
+import uuid
 import time
 import random
 import pickle
@@ -19,6 +20,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from screeninfo import get_monitors
 # get_ipython().run_line_magic('matplotlib', 'qt5')
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 # %% Default Parameters class
 class DefaultParams:
@@ -132,8 +134,8 @@ class DefaultParams:
                 'random'              : False,
                 'order'               : [0, 0, 2, 0, 1, 2, 1, 0, 2, 0, 1, 1, 0, 2, 0, 0],
                 'timing'              : np.array([ 74.82176945, 55.41945447, 61.75785047, 47.52070435,
-                                                   54.23889192, 45.71200062, 57.34069709, 59.77877237, 
-                                                   74.32395161, 57.81340795, 53.45014845, 75.49022935, 
+                                                   54.23889192, 45.71200062, 57.34069709, 59.77877237,
+                                                   74.32395161, 57.81340795, 53.45014845, 75.49022935,
                                                    59.69082781, 66.50032699, 60.45184117, 44.26133661])}
 
     def conditioning(self,shock):
@@ -154,7 +156,7 @@ class DefaultParams:
                 'shock_duration'      : 1.0,
                 'shock_id'            : 1,
                 'shock'               : True if shock else False,
-                'laser'               : True,
+                'laser'               : False,
                 'laser_addl_duration' : 10,
                 'random'              : False,
                 'order'               : [1, 1, 1, 1, 1],
@@ -251,7 +253,8 @@ class Plot:
         self.shock_trials = np.where(self.shock_id == self.trials, 1, 0)
         self.x_array      = [trial + 1 for trial in range(len(self.trials))]
         self.norm_trials  = (self.trials - np.min(self.trials))\
-                          / (np.max(self.trials) - np.min(self.trials))
+                          / (np.max(self.trials) - np.min(self.trials)) if\
+                            len(np.unique(self.trials)) > 1 else self.trials
         self.colors       = plt.cm.rainbow(self.norm_trials)
         self.edgecolors   = ['black' if is_shock else 'None' for is_shock in self.shock_trials]
         self.scatter_left = None
@@ -332,16 +335,26 @@ class MainApp:
     :type ledPin: int
     """
     def __init__(self,a,connection,session_params,plot_queue,laserPin,shockerPin,ledPin):
-        self.a          = a
-        self.connection = connection
-        self.params     = session_params
-        self.plot_queue = plot_queue
-        self.laserPin   = laserPin
-        self.shockerPin = shockerPin
-        self.ledPin     = ledPin
+        self.a            = a
+        self.connection   = connection
+        self.params       = session_params
+        self.plot_queue   = plot_queue
+        self.laserPin     = laserPin
+        self.shockerPin   = shockerPin
+        self.ledPin       = ledPin
+        self.rig          = str(uuid.UUID(int=uuid.getnode()))
         self.mice = next(iter(self.params.save_params['mice'])) if len(self.params.save_params['mice']) == 1 else\
                     '+'.join(self.params.save_params['mice'])
         self.log  = open(os.path.join(self.params.save_params['tmp_path'],"day{}-{}-log.txt".format(self.params.save_params['day'],self.mice)),"a")
+        self.balance_audio()
+
+    def balance_audio(self):
+        if self.rig in {'00000000-0000-0000-0000-7085c259e003'}: # rig 1
+            self.audio_params = {0: 1.0, 1: 0.90, 2: 0.65}
+        elif self.rig in {'00000000-0000-0000-0000-908d6e5d0a5e'}: # rig 2
+            self.audio_params = {0: 1.0, 1: 0.85, 2: 0.55}
+        else: # any other computer
+            self.audio_params = {0: 1.0, 1: 1.0 , 2: 1.0 }
 
     def fetch_defaults(self):
         """
@@ -404,8 +417,10 @@ class MainApp:
             self.pause(self.default_params.params['laser_addl_duration'])
             threading.Thread(target=self.ledCtrl).start()
             pygame.mixer.init()
-            pygame.mixer.music.load(self.params.tone_params[self.num2type(trial_type)])
-            pygame.mixer.music.play()
+            tone   = pygame.mixer.Sound(self.params.tone_params[self.num2type(trial_type)])
+            volume = self.audio_params[trial_type]
+            tone.set_volume(volume)
+            tone.play()
             actual_cs_start.append(time.time() - self.start_time)
             cue.append(trial_type)
             if trial_type == self.default_params.params['shock_id'] and self.default_params.params['shock']:
